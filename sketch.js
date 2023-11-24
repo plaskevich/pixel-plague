@@ -1,11 +1,11 @@
 const config = {
   size: 10,
-  stepsPerFrame: 1,
+  iterationsPerFrame: 1,
   speed: 2,
   startingPoints: 2,
 };
 
-let w, h, points, step, arr;
+let w, h, points, iteration, grid;
 let palette = [];
 let sizeSlider, speedSlider, pointsSlider, resetButton;
 let sizeLabel, speedLabel, pointsLabel;
@@ -76,7 +76,7 @@ function startDrawing() {
   h = floor(h / size) * size;
   createCanvas(w, h);
   background(0);
-  arr = new Array(w * h).fill(false);
+  grid = new Array(w * h).fill(false);
 
   points = Array(pointsSlider.value())
     .fill()
@@ -84,7 +84,7 @@ function startDrawing() {
       x: floor(random(w / size)) * size,
       y: floor(random(h / size)) * size,
     }));
-  step = 0;
+  iteration = 0;
 
   noStroke();
   frameRate(speedSlider.value());
@@ -97,8 +97,8 @@ function startDrawing() {
 
 function draw() {
   if (!gameOver) {
-    for (let i = 0; i < config.stepsPerFrame; i += 1) {
-      if (step >= w * h) {
+    for (let i = 0; i < config.iterationsPerFrame; i += 1) {
+      if (iteration >= w * h) {
         return;
       }
 
@@ -111,12 +111,31 @@ function draw() {
 }
 function movePoint(point) {
   const size = config.size;
-  let attempts = 0;
   const maxAttempts = 100;
 
-  while (true) {
-    attempts += 1;
-    if (attempts > maxAttempts) {
+  for (let attempts = 1; attempts <= maxAttempts; attempts++) {
+    let randomX = floor(random(2));
+    let randomY = floor(random(2));
+
+    let tempX = randomX;
+    randomX = randomX + randomY - 1;
+    randomY = tempX - randomY;
+
+    let maxSteps = floor(random(w + h));
+
+    for (let i = 0; i < maxSteps; i++) {
+      point.x = (point.x + randomX * size + w) % w;
+      point.y = (point.y + randomY * size + h) % h;
+      if (!grid[point.x + point.y * w]) {
+        break;
+      }
+    }
+
+    if (!grid[point.x + point.y * w]) {
+      break;
+    }
+
+    if (attempts === maxAttempts) {
       gameOver = true;
       if (!dialogShown) {
         let isReset = confirm('GAME OVER. Do you want to reset?');
@@ -126,23 +145,6 @@ function movePoint(point) {
           dialogShown = true;
         }
       }
-      return;
-    }
-
-    let [rx, ry] = [floor(random(2)), floor(random(2))];
-    [rx, ry] = [rx + ry - 1, rx - ry];
-    let maxSteps = floor(random(w + h));
-
-    for (let i = 0; i < maxSteps; i += 1) {
-      point.x = (point.x + rx * size + w) % w;
-      point.y = (point.y + ry * size + h) % h;
-      if (!arr[point.x + point.y * w]) {
-        break;
-      }
-    }
-
-    if (!arr[point.x + point.y * w]) {
-      break;
     }
   }
 }
@@ -150,10 +152,8 @@ function movePoint(point) {
 function drawPoint(point) {
   const { size } = config;
   const { x, y } = point;
-
-  arr[x + y * w] = true;
-  step += 1;
+  grid[x + y * w] = true;
+  iteration++;
   fill(random(palette));
   rect(x, y, size, size);
-  console.log(arr.length);
 }

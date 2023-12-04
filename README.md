@@ -1,4 +1,4 @@
-# Pixel Plague
+# 👾 Pixel Plague
 
 This is a generative design project programmed in **p5.js**
 

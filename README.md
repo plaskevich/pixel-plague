@@ -1,6 +1,6 @@
 # 👾 Pixel Plague
 
-This is a generative design project programmed in **p5.js**
+This is a generative design project written in **p5.js**
 
 #### p5.js Web Editor Version: https://editor.p5js.org/plaskevich/full/JrZpR7Oe2
 
